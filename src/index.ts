@@ -1,5 +1,5 @@
 import joplin from 'api';
-import { MenuItemLocation, SettingItemType } from 'api/types';
+import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 import * as copy from 'copy-to-clipboard';
 import { UniversalLink } from './links/universallink';
 
@@ -7,9 +7,9 @@ const SETTING_SECTION = "ianylink.settings";
 const LINK_CONVERTOR_URL = "https://benlau.github.io/l"
 
 enum Feature {
-	CopyWebLinkEnabled = "ianylink.copy_web_link",
-	CopyMarkdownWebLinkEnabled = "ianylink.copy_markdown_web_link",
-	CopyWebLinkWithTitleEnabled = "ianylink.copy_web_link_with_title",
+	CopyUniversalWebLink = "ianylink.copy_universal_web_link",
+	CopyUniversalMarkdownWebLink = "ianylink.copy_universal_markdown_web_link",
+	CopyUniversalWebLinkWithTitle = "ianylink.copy_universal_web_link_with_title",
 	OpenLinkConvertor = "ianylink.open_link_convertor"
 }
 
@@ -70,19 +70,19 @@ function copyLink(func) {
 }
 
 const config = {
-    [Feature.CopyWebLinkEnabled]: {
-        setting: "Enable - copy web link",
-        menu: "Copy web link",
+    [Feature.CopyUniversalWebLink]: {
+        setting: "Enable - copy universal web link",
+        menu: "Copy universal web link",
         cmd: copyLink(createWebLink)
     },
-    [Feature.CopyMarkdownWebLinkEnabled]: {
-        setting: "Enable - copy markdown web link",
-        menu: "Copy markdown web link",
+    [Feature.CopyUniversalMarkdownWebLink]: {
+        setting: "Enable - copy markdown universal web link",
+        menu: "Copy universal markdown web link",
         cmd: copyLink(createMarkdownWebLink),
     },
-    [Feature.CopyWebLinkWithTitleEnabled]: {
-        setting: "Enable - copy web link with title",
-        menu: "Copy web link with title",
+    [Feature.CopyUniversalWebLinkWithTitle]: {
+        setting: "Enable - copy universal web link (with title)",
+        menu: "Copy universal web link (with title)",
         cmd: copyLink(createWebLinkWithTitle)
     },
     [Feature.OpenLinkConvertor] : {
@@ -91,6 +91,12 @@ const config = {
         cmd: openLinkConvertorUrl
     }
 }
+
+const NOTE_LIST_CONTEXT_MENU_ITEMS = [
+    Feature.CopyUniversalWebLink,
+    Feature.CopyUniversalMarkdownWebLink,
+    Feature.CopyUniversalWebLinkWithTitle,
+]
 
 joplin.plugins.register({
     onStart: async function() {
@@ -109,13 +115,13 @@ joplin.plugins.register({
             label: "IAnylink",
             iconName: "fas fa-link",
             name: "Copy Web Link",
-            description: "Copy web link Settings\nRestart is required to take effect"
+            description: "Copy web link Settings (Restart is required for changes to take effect)"
         });
 
         await joplin.settings.registerSettings(
             Object.fromEntries(
-                Object.values(Feature).map( (key) => {
-                    const value = key === Feature.CopyWebLinkEnabled;
+                NOTE_LIST_CONTEXT_MENU_ITEMS.map( (key) => {
+                    const value = key === Feature.CopyUniversalWebLink;
                     const setting = getSettingKey(key as Feature);
                     return [setting, {
                         value,
@@ -128,7 +134,8 @@ joplin.plugins.register({
             )
         );
 
-        await Promise.all(Object.values(Feature).map(async key => {
+        // Create note list context menu
+        await Promise.all(NOTE_LIST_CONTEXT_MENU_ITEMS.map(async key => {
             const commandName = getCommandName(key);
             const enabled = await joplin.settings.value(
                 getSettingKey(key)
@@ -143,6 +150,17 @@ joplin.plugins.register({
                 MenuItemLocation.NoteListContextMenu
             );
         }));
+
+        const toolMenuItems = Object.values(Feature).map(key => {
+            const commandName = getCommandName(key);
+            return {
+                commandName
+            }
+        }) as MenuItem[];
+
+        await joplin.views.menus.create("ianylink.tool_menu", 
+            "Open Univeral Web Link" , toolMenuItems, MenuItemLocation.Tools);
+
         console.log("End of ianylink initialization")
     },
 });
