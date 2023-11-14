@@ -81,8 +81,8 @@ const config = {
         cmd: copyLink(createMarkdownWebLink),
     },
     [Feature.CopyUniversalWebLinkWithTitle]: {
-        setting: "Enable - copy universal web link (with title)",
-        menu: "Copy universal web link (with title)",
+        setting: "Enable - copy title and universal web link",
+        menu: "Copy title and universal web link",
         cmd: copyLink(createWebLinkWithTitle)
     },
     [Feature.OpenLinkConvertor] : {
@@ -112,10 +112,10 @@ joplin.plugins.register({
         }));
 
         await joplin.settings.registerSection(SETTING_SECTION, {
-            label: "IAnylink",
+            label: "Copy Universal Web Link",
             iconName: "fas fa-link",
-            name: "Copy Web Link",
-            description: "Copy web link Settings (Restart is required for changes to take effect)"
+            name: "Copy Universal Web Link",
+            description: "Copy Universal Web Link Settings (Restart is required for changes to take effect)"
         });
 
         await joplin.settings.registerSettings(
