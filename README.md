@@ -43,6 +43,12 @@ The service link: https://benlau.github.io/l
 
 This GitHub repo provides a Joplin plugin to directly copy the universal web link of your note to the clipboard.
 
+# Installation
+
+1. Open "Joplin" -> "Settings" -> "Plugin"
+2. Search "Copy Universal Web Linkt"
+3. Press "Install"
+
 # Usage
 
 1. Copy the universal web link of your note via the note list context menu.
