@@ -41,7 +41,7 @@ Examples:
 
 The service link: https://benlau.github.io/l
 
-This GitHub repo provides a Joplin plugin to directly copy the universal web link of your note to the clipboard.
+This GitHub repo provides a Joplin plugin to directly copy the universal web link of your note to the clipboard. You may find the source code at: https://github.com/benlau/ianylink
 
 # Installation
 
