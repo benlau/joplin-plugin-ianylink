@@ -1,7 +1,7 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
 import * as copy from 'copy-to-clipboard';
-import { UniversalLink } from './links/universallink';
+import { JoplinLink } from './links/joplinlink';
 
 const SETTING_SECTION = "ianylink.settings";
 const LINK_CONVERTOR_URL = "https://benlau.github.io/l"
@@ -37,7 +37,7 @@ function createOpenNoteCallbackLink(noteId: string) {
 function createWebLink(noteId: string) {
     const link = createOpenNoteCallbackLink(noteId);
 
-    const path =  new UniversalLink().encode(link);
+    const path =  new JoplinLink().encodeLink(link);
     return `${LINK_CONVERTOR_URL}${path}`
 }
 
@@ -100,9 +100,6 @@ const NOTE_LIST_CONTEXT_MENU_ITEMS = [
 
 joplin.plugins.register({
     onStart: async function() {
-        // eslint-disable-next-line no-console
-        console.log("Start ianylink plugin");
-
         await Promise.all(Object.values(Feature).map( async key => {
             await joplin.commands.register({
                 name: getCommandName(key),
@@ -160,7 +157,5 @@ joplin.plugins.register({
 
         await joplin.views.menus.create("ianylink.tool_menu", 
             "Open Univeral Web Link" , toolMenuItems, MenuItemLocation.Tools);
-
-        console.log("End of ianylink initialization")
     },
 });
