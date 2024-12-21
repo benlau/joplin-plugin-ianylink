@@ -34,38 +34,44 @@ function createOpenNoteCallbackLink(noteId: string) {
     return `joplin://x-callback-url/openNote?id=${noteId}`
 }
 
-function createWebLink(noteId: string) {
+function createWebLink(noteId: string, serviceUrl: string) {
     const link = createOpenNoteCallbackLink(noteId);
 
     const path =  new JoplinLink().encodeLink(link);
-    return `${LINK_CONVERTOR_URL}${path}`
+    return `${serviceUrl}${path}`
 }
 
-async function createMarkdownWebLink(noteId: string) {
+async function createMarkdownWebLink(noteId: string, serviceUrl: string) {
     const title = await getTitle(noteId);
-    const webLink = createWebLink(noteId);
+    const webLink = createWebLink(noteId, serviceUrl);
 
     return `[${title}](${webLink})`;
 }
 
-async function createWebLinkWithTitle(noteId: string) {
+async function createWebLinkWithTitle(noteId: string, serviceUrl: string) {
     const title = await getTitle(noteId);
-    const webLink = createWebLink(noteId);
+    const webLink = createWebLink(noteId, serviceUrl);
 
     return `${title}
 ${webLink}`
 }
 
-function openLinkConvertorUrl() {
-    window.open(LINK_CONVERTOR_URL);
+async function openLinkConvertorUrl() {
+    const serviceUrl = await joplin.settings.value(
+        "ianylink.service_url"
+    );
+    window.open(serviceUrl);
 }
 
 function copyLink(func) {
     return async () => {
         const ids = await joplin.workspace.selectedNoteIds();
+        const serviceUrl = await joplin.settings.value(
+            "ianylink.service_url"
+        );
         if (ids.length === 0) return;
         const notebookId = ids[0];
-        copy(await func(notebookId));
+        copy(await func(notebookId, serviceUrl));
     }
 }
 
@@ -115,9 +121,17 @@ joplin.plugins.register({
             description: "Copy Universal Web Link Settings (Restart is required for changes to take effect)"
         });
 
-        await joplin.settings.registerSettings(
-            Object.fromEntries(
-                NOTE_LIST_CONTEXT_MENU_ITEMS.map( (key) => {
+        const settings = {
+            "ianylink.service_url": {
+                type: SettingItemType.String,
+                public: true,
+                label: "iAnyLink Service URL",
+                section: SETTING_SECTION,
+                value: LINK_CONVERTOR_URL,
+                description: "The URL of the iAnyLink service. You may change it to your own service URL."
+            },
+            ...Object.fromEntries(
+                Object.values(Feature).map(key => {
                     const value = key === Feature.CopyUniversalWebLink;
                     const setting = getSettingKey(key as Feature);
                     return [setting, {
@@ -129,6 +143,10 @@ joplin.plugins.register({
                     }]
                 })
             )
+        };
+
+        await joplin.settings.registerSettings(
+            settings
         );
 
         // Create note list context menu
