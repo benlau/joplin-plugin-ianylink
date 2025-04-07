@@ -1,6 +1,5 @@
 import joplin from 'api';
 import { MenuItem, MenuItemLocation, SettingItemType } from 'api/types';
-import * as copy from 'copy-to-clipboard';
 import { JoplinLink } from './links/joplinlink';
 
 const SETTING_SECTION = "ianylink.settings";
@@ -71,7 +70,7 @@ function copyLink(func) {
         );
         if (ids.length === 0) return;
         const notebookId = ids[0];
-        copy(await func(notebookId, serviceUrl));
+        joplin.clipboard.writeText(await func(notebookId, serviceUrl));
     }
 }
 
